@@ -1,3 +1,5 @@
+import re
+
 ########################################################################################
 def NormalizeURL(url):
 
@@ -6,10 +8,10 @@ def NormalizeURL(url):
 ########################################################################################
 def MetadataObjectForURL(url):
 
-	page = HTML.ElementFromURL(url)
+	page = HTML.ElementFromURL(url + '#.VKRignvdK5g')
 
-	title = page.xpath("//h1[@class='item']/a/span/@title")[0]
-	description = page.xpath("//head/meta[@property='og:description']/@content")[0]
+	title = page.xpath("//title/text()")[0]
+	description = page.xpath("//head/meta[@name='description']/text()")
 	thumb = page.xpath("//head/meta[@property='og:image']/@content")[0]
 
 	return VideoClipObject(
@@ -33,28 +35,22 @@ def MediaObjectsForURL(url):
 						)
 					)
 				],
+			video_resolution = resolution,
+			bitrate = bitrate,
 			container = Container.MP4,
 			video_codec = VideoCodec.H264,
 			audio_codec = AudioCodec.AAC,
-			video_resolution = '720',
 			audio_channels = 2,
-			optimized_for_streaming = True if Client.Product != 'Plex Web' else False
-			)
+			optimized_for_streaming = True
+			) for resolution, bitrate in [('1080', 3000), ('720', 1500), ('360', 750)]
 	]
 
 ########################################################################################
 @indirect
 def PlayVideo(url, fmt):
 
-	#page_content = HTTP.Request(url).content
-	#proxy_url = Regex('.*\"proxy.link\" *: *\"(.*)\".*', Regex.IGNORECASE|Regex.MULTILINE).search(page_content).groups()[0]
-	#encoded_link = proxy_url.replace('zumvo*','',1)
-	#x = zumvofilmDecrypter.zumvofilmDecrypter(198,128)
-	#key = "NlFQU1NQSGJrbXJlNzlRampXdHk="
-	#decoded_url = x.decrypt(encoded_link, key.decode('base64','strict'), "ECB").split('\0')[0]
-	#picasa = HTTP.Request(decoded_url).content
 
-	#picasa_url= Regex('\"url\":\"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\"').findall(picasa)[1]
-	#final_url = picasa_url.replace("\"url\":\"","",1).replace('\"','',1)
+	html = HTTP.Request(url + '#.VKRignvdK5g').content
+	video_url = Regex('file:\t"([^"]+)"').search(html).groups()[0]
 
-	return IndirectResponse(VideoClipObject, key=url)
+	return IndirectResponse(VideoClipObject, key=video_url)
