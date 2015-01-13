@@ -10,13 +10,17 @@ def MetadataObjectForURL(url):
 
 	page = HTML.ElementFromURL(url + '#.VKRignvdK5g')
 
-	title = page.xpath("//title/text()")[0]
-	description = page.xpath("//head/meta[@name='description']/text()")
-	thumb = page.xpath("//head/meta[@property='og:image']/@content")[0]
+	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
+	description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
+	director = page.xpath("//dl[1]/dd[1]/a/text()")
+	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
 
 	return VideoClipObject(
 		title = title,
 		summary = description,
+		directors = director,
+		rating = float(imdb_rating),
 		thumb = thumb
 	)
 
