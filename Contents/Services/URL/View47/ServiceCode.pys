@@ -8,7 +8,7 @@ def NormalizeURL(url):
 ########################################################################################
 def MetadataObjectForURL(url):
 
-	page = HTML.ElementFromURL(url + '#.VKRignvdK5g')
+	page = HTML.ElementFromURL(url)
 
 	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
 	description = page.xpath("//div[@class='info-txt']/p/text()")[0]
@@ -54,7 +54,7 @@ def MediaObjectsForURL(url):
 def PlayVideo(url, fmt):
 
 
-	html = HTTP.Request(url + '#.VKRignvdK5g').content
+	html = HTTP.Request(url).content
 	video_url = Regex('file:\t"([^"]+)"').search(html).groups()[0]
 
 	return IndirectResponse(VideoClipObject, key=video_url)
