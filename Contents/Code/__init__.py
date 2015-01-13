@@ -47,7 +47,7 @@ def MainMenu():
 	html = HTML.ElementFromURL(BASE_URL)
 	for nav in html.xpath("//ul[@class='col-2']/li"):
 		title = nav.xpath("./a/@title")[0]
-		category = nav.xpath("./a/@href")[0].replace('http://view47.com/genres','',1)
+		category = nav.xpath("./a/@href")[0]
 		oc.add(DirectoryObject(key = Callback(ShowCategory, title=title, category=category, page_count = 1), title = title, thumb = R(ICON_MOVIES)))
 
 	return oc
@@ -60,9 +60,15 @@ def ShowCategory(title, category, page_count):
 
 	oc = ObjectContainer(title1 = title)
 	if page_count == "1":
-		page_data = HTML.ElementFromURL(MOVIES_URL + str(category))
+		try:
+			page_data = HTML.ElementFromURL(str(category))
+		except:
+			page_data = HTML.ElementFromURL(MOVIES_URL + str(category))
 	else:
-		page_data = HTML.ElementFromURL(MOVIES_URL + str(category) + '?p=' + str(page_count) + '/')
+		try:
+			page_data = HTML.ElementFromURL(str(category) + '?p=' + str(page_count) + '/')
+		except:
+			page_data = HTML.ElementFromURL(MOVIES_URL + str(category) + '?p=' + str(page_count) + '/')
 	for each in page_data.xpath("//div[contains(@rel,'items-')]"):
 		url = each.xpath("./a/@href")[0]
 		title = each.xpath("./a/@title")[0]
