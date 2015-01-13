@@ -16,8 +16,8 @@ ICON_MOVIES = "icon-movies.png"
 ICON_SERIES = "icon-series.png"
 ICON_QUEUE = "icon-queue.png"
 BASE_URL = "http://view47.com"
-MOVIES_URL = "http://view47.com/genres"
-SEARCH_URL = "http://view47.com/search/"
+MOVIES_URL = "http://view47.com/list/"
+SEARCH_URL = "http://view47.com/search.php?q="
 
 ######################################################################################
 # Set global variables
@@ -42,13 +42,10 @@ def Start():
 def MainMenu():
 
 	oc = ObjectContainer()
-	oc.add(InputDirectoryObject(key = Callback(Search), title='Search', summary='Search View47', prompt='Search for...'))
 
-	html = HTML.ElementFromURL(BASE_URL)
-	for nav in html.xpath("//ul[@class='col-2']/li"):
-		title = nav.xpath("./a/@title")[0]
-		category = nav.xpath("./a/@href")[0]
-		oc.add(DirectoryObject(key = Callback(ShowCategory, title=title, category=category, page_count = 1), title = title, thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="New Movies", category="new-movies.html", page_count = 1), title = "New Movies", thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Cinema Movies", category="cinema-movies.html", page_count = 1), title = "Cinema Movies", thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Movies", category="single-movies.html", page_count = 1), title = "Movies", thumb = R(ICON_MOVIES)))
 
 	return oc
 
@@ -97,38 +94,21 @@ def ShowCategory(title, category, page_count):
 def EpisodeDetail(title, url):
 	
 	oc = ObjectContainer(title1 = title)
-	page_data = HTML.ElementFromURL(url)
-	title = page_data.xpath("//div[@class='info-movie']/h2/text()")[0]
-	thumb = page_data.xpath("//div[@class='info-movie']/div/a/img/@src")[0]
+	page = HTML.ElementFromURL(url)
+
+	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
+	description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
+	director = page.xpath("//dl[1]/dd[1]/a/text()")
+	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
 	
 	oc.add(VideoClipObject(
-		url = url,
 		title = title,
-		thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+		summary = description,
+		directors = director,
+		thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png'),
+		url = url
 		)
 	)	
 	
 	return oc	
-
-####################################################################################################
-@route(PREFIX + "/search")
-def Search(query):
-
-	oc = ObjectContainer(title2='Search Results')
-	data = HTTP.Request(SEARCH_URL + '%s' % String.Quote(query + '.html', usePlus=True), headers="").content
-
-	html = HTML.ElementFromString(data)
-
-	for movie in html.xpath("//ul[@class='list-film']/li"):
-		url = movie.xpath("./div[@class='inner']/a/@href")[0]
-		title = movie.xpath("./div[@class='inner']/a/@title")[0]
-		thumb = movie.xpath("./div[@class='inner']/a/img/@data-original")[0]
-
-		oc.add(DirectoryObject(
-				key = Callback(EpisodeDetail, title = title, url = url),
-				title = title,
-				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
-				)
-		)
-
-	return oc
