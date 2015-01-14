@@ -34,5 +34,4 @@ How To Install
 
 Current status
 ============
-Search not working.
-TV Seasons only play first episode, no option choose other episodes.
+No Search
