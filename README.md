@@ -32,6 +32,3 @@ How To Install
 
 - Restart PMS
 
-Current status
-============
-No Search
