@@ -159,11 +159,19 @@ def Search(query):
 		title = movie.xpath("./div/p/a/@title")[0]
 		thumb = url
 
-		oc.add(DirectoryObject(
-				key = Callback(EpisodeDetail, title = title, url = url),
+		if title.find("season"):
+			oc.add(DirectoryObject(
+				key = Callback(ShowEpisodes, title = title, url = url),
 				title = title,
-				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-series.png')
 				)
-		)
+			)
+		else:
+			oc.add(DirectoryObject(
+					key = Callback(EpisodeDetail, title = title, url = url),
+					title = title,
+					thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+					)
+			)
 
 	return oc
