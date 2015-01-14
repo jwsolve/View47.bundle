@@ -46,6 +46,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="New Movies", category="new-movies.html", page_count = 1), title = "New Movies", thumb = R(ICON_MOVIES)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Cinema Movies", category="cinema-movies.html", page_count = 1), title = "Cinema Movies", thumb = R(ICON_MOVIES)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Movies", category="single-movies.html", page_count = 1), title = "Movies", thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="TV Series", category="series-movies.html", page_count = 1), title = "TV Series", thumb = R(ICON_MOVIES)))
 
 	return oc
 
@@ -71,17 +72,47 @@ def ShowCategory(title, category, page_count):
 		title = each.xpath("./a/@title")[0]
 		thumb = each.xpath("./img/@src")[0]
 		
-		oc.add(DirectoryObject(
-			key = Callback(EpisodeDetail, title = title, url = url),
-			title = title,
-			thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+		if title.find("season"):
+			oc.add(DirectoryObject(
+				key = Callback(ShowEpisodes, title = title, url = url),
+				title = title,
+				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-series.png')
+				)
 			)
-		)
+		else:
+			oc.add(DirectoryObject(
+				key = Callback(EpisodeDetail, title = title, url = url),
+				title = title,
+				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+				)
+			)
 
 	oc.add(NextPageObject(
 		key = Callback(ShowCategory, title = category, category = category, page_count = int(page_count) + 1),
 		title = "More...",
 		thumb = R(ICON_NEXT)
+			)
+		)
+	
+	return oc
+
+######################################################################################
+# Creates page url from tv episodes and creates objects from that page
+
+@route(PREFIX + "/showepisodes")	
+def ShowEpisodes(title, url):
+
+	oc = ObjectContainer(title1 = title)
+	page_data = HTML.ElementFromURL(url)
+	thumb = page_data.xpath("//div[@class='poster']/a/img/@src")
+	for each in page_data.xpath("//span[@class='svep']/a"):
+		url = each.xpath("./@href")[0]
+		title = each.xpath("./@title")[0]
+
+		oc.add(DirectoryObject(
+			key = Callback(EpisodeDetail, title = title, url = url),
+			title = title,
+			thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
 			)
 		)
 	
@@ -106,7 +137,7 @@ def EpisodeDetail(title, url):
 		title = title,
 		summary = description,
 		directors = director,
-		thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png'),
+		thumb = thumb,
 		url = url
 		)
 	)	
