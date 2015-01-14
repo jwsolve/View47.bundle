@@ -35,5 +35,4 @@ How To Install
 Current status
 ============
 Search not working.
-No summary for videos.
-TV Seasons only play first episode, cannot choose other episodes.
+TV Seasons only play first episode, no option choose other episodes.
