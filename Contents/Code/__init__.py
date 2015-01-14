@@ -17,7 +17,7 @@ ICON_SERIES = "icon-series.png"
 ICON_QUEUE = "icon-queue.png"
 BASE_URL = "http://view47.com"
 MOVIES_URL = "http://view47.com/list/"
-SEARCH_URL = "http://view47.com/search.php?q="
+SEARCH_URL = "http://view47.com/search/"
 
 ######################################################################################
 # Set global variables
@@ -48,6 +48,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Movies", category="single-movies.html", page_count = 1), title = "Movies", thumb = R(ICON_MOVIES)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="TV Series", category="series-movies.html", page_count = 1), title = "TV Series", thumb = R(ICON_MOVIES)))
 
+	oc.add(InputDirectoryObject(key = Callback(Search), title='Search', summary='Search View47', prompt='Search for...'))
 	return oc
 
 ######################################################################################
@@ -143,3 +144,26 @@ def EpisodeDetail(title, url):
 	)	
 	
 	return oc	
+
+####################################################################################################
+@route(PREFIX + "/search")
+def Search(query):
+
+	oc = ObjectContainer(title2='Search Results')
+	data = HTTP.Request(SEARCH_URL + '%s' % String.Quote(query, usePlus=True) + '.html', headers="").content
+
+	html = HTML.ElementFromString(data)
+
+	for movie in html.xpath("//ul[@class='list zzz ip_tip']/li"):
+		url = movie.xpath("./div/p/a/@href")[0]
+		title = movie.xpath("./div/p/a/@title")[0]
+		thumb = url
+
+		oc.add(DirectoryObject(
+				key = Callback(EpisodeDetail, title = title, url = url),
+				title = title,
+				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+				)
+		)
+
+	return oc
