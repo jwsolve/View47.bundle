@@ -73,7 +73,7 @@ def ShowCategory(title, category, page_count):
 		title = each.xpath("./a/@title")[0]
 		thumb = each.xpath("./img/@src")[0]
 		
-		if title.find("season"):
+		if 'Season' in title:
 			oc.add(DirectoryObject(
 				key = Callback(ShowEpisodes, title = title, url = url),
 				title = title,
@@ -159,7 +159,7 @@ def Search(query):
 		title = movie.xpath("./div/p/a/@title")[0]
 		thumb = url
 
-		if title.find("season"):
+		if 'Season' in title:
 			oc.add(DirectoryObject(
 				key = Callback(ShowEpisodes, title = title, url = url),
 				title = title,
