@@ -13,7 +13,8 @@ ICON_COVER = "icon-cover.png"
 ICON_SEARCH = "icon-search.png"
 ICON_NEXT = "icon-next.png"
 ICON_MOVIES = "icon-movies.png"
-ICON_SERIES = "icon-series.png"
+ICON_SERIES = "icon-tv.png"
+ICON_CINEMA = "icon-cinema.png"
 ICON_QUEUE = "icon-queue.png"
 BASE_URL = "http://view47.com"
 MOVIES_URL = "http://view47.com/list/"
@@ -44,9 +45,9 @@ def MainMenu():
 	oc = ObjectContainer()
 
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="New Movies", category="new-movies.html", page_count = 1), title = "New Movies", thumb = R(ICON_MOVIES)))
-	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Cinema Movies", category="cinema-movies.html", page_count = 1), title = "Cinema Movies", thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Cinema Movies", category="cinema-movies.html", page_count = 1), title = "Cinema Movies", thumb = R(ICON_CINEMA)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Movies", category="single-movies.html", page_count = 1), title = "Movies", thumb = R(ICON_MOVIES)))
-	oc.add(DirectoryObject(key = Callback(ShowCategory, title="TV Series", category="series-movies.html", page_count = 1), title = "TV Series", thumb = R(ICON_MOVIES)))
+	oc.add(DirectoryObject(key = Callback(ShowCategory, title="TV Series", category="series-movies.html", page_count = 1), title = "TV Series", thumb = R(ICON_SERIES)))
 
 	oc.add(InputDirectoryObject(key = Callback(Search), title='Search', summary='Search View47', prompt='Search for...'))
 	return oc
@@ -106,7 +107,7 @@ def ShowEpisodes(title, url):
 	oc = ObjectContainer(title1 = title)
 	page_data = HTML.ElementFromURL(url)
 	thumb = page_data.xpath("//div[@class='poster']/a/img/@src")
-	for each in page_data.xpath("//span[@class='svep']/a"):
+	for each in page_data.xpath("//div[contains(@class,'boxep')]/a"):
 		url = each.xpath("./@href")[0]
 		title = each.xpath("./@title")[0]
 
