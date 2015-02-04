@@ -14,13 +14,21 @@ def MetadataObjectForURL(url):
 	director = page.xpath("//dl[1]/dd[1]/a/text()")
 	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
 
-	return VideoClipObject(
-		title = title,
-		summary = description,
-		directors = director,
-		rating = float(imdb_rating),
-		thumb = thumb
-	)
+	try:
+		return VideoClipObject(
+			title = title,
+			summary = description,
+			directors = director,
+			rating = float(imdb_rating),
+			thumb = thumb
+		)
+	except:
+		return VideoClipObject(
+			title = title,
+			summary = description,
+			directors = director,
+			thumb = thumb
+		)
 
 ########################################################################################
 def MediaObjectsForURL(url):
@@ -33,7 +41,8 @@ def MediaObjectsForURL(url):
 						Callback(
 							PlayVideo,
 							url = url,
-							fmt = 'hi'
+							fmt = 'hi',
+							post_url=url
 						)
 					)
 				],
