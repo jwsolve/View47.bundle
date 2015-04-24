@@ -9,7 +9,10 @@ def MetadataObjectForURL(url):
 	page = HTML.ElementFromURL(url)
 
 	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
-	description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	try:
+		description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	except:
+		description = page.xpath("//div[@class='info-txt']/text()")[0]
 	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
 	director = page.xpath("//dl[1]/dd[1]/a/text()")
 	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
@@ -46,14 +49,14 @@ def MediaObjectsForURL(url):
 						)
 					)
 				],
-			video_resolution = resolution,
-			bitrate = bitrate,
+			video_resolution = 720,
+			bitrate = 3000,
 			container = Container.MP4,
 			video_codec = VideoCodec.H264,
 			audio_codec = AudioCodec.AAC,
 			audio_channels = 2,
 			optimized_for_streaming = True
-			) for resolution, bitrate in [('1080', 3000), ('720', 1500), ('360', 750)]
+			)
 	]
 
 ########################################################################################

@@ -35,6 +35,7 @@ def Start():
 	HTTP.CacheTime = CACHE_1HOUR
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
 	HTTP.Headers['Referer'] = 'http://view47.com/'
+	HTTP.Headers['Cookie'] = '__cfduid=dd8ee280bf178050f2af59f0a9511ce4f1423094028; __atuvc=2%7C5%2C3%7C6%2C6%7C7; cf_clearance=e109a4b429e9b0a3e218fb5a98f936404c6faeff-1424391772-86400; PHPSESSID=9399323664eef0bdb8a9ee213380fb45; show_tootip=1'
 	
 ######################################################################################
 # Menu hierarchy
@@ -128,9 +129,12 @@ def EpisodeDetail(title, url):
 	
 	oc = ObjectContainer(title1 = title)
 	page = HTML.ElementFromURL(url)
+	title = page.xpath("//meta[@property='og:title']/@content")[0]
 
-	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
-	description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	try:
+		description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+	except:
+		description = page.xpath("//div[@class='info-txt']/text()")[0]
 	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
 	director = page.xpath("//dl[1]/dd[1]/a/text()")
 	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
