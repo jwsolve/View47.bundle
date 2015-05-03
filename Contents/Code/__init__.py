@@ -132,9 +132,9 @@ def EpisodeDetail(title, url):
 	title = page.xpath("//meta[@property='og:title']/@content")[0]
 
 	try:
-		description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+		description = page.xpath("//meta[@property='og:description']/@content")[0]
 	except:
-		description = page.xpath("//div[@class='info-txt']/text()")[0]
+		description = page.xpath("//div[@class='info-txt']/p/text()")[0]
 	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
 	director = page.xpath("//dl[1]/dd[1]/a/text()")
 	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
