@@ -8,6 +8,7 @@
       <key>URLPatterns</key>
       <array>
         <string>http://view47.com/</string>
+        <string>http://view47.so/</string>
       </array>
     </dict>
   </dict>
