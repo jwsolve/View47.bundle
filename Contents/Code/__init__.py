@@ -16,9 +16,9 @@ ICON_MOVIES = "icon-movies.png"
 ICON_SERIES = "icon-tv.png"
 ICON_CINEMA = "icon-cinema.png"
 ICON_QUEUE = "icon-queue.png"
-BASE_URL = "http://view47.com"
-MOVIES_URL = "http://view47.com/list/"
-SEARCH_URL = "http://view47.com/search/"
+BASE_URL = "http://view47.me"
+MOVIES_URL = "http://view47.me/list/"
+SEARCH_URL = "http://view47.me/search/"
 
 ######################################################################################
 # Set global variables
@@ -34,7 +34,7 @@ def Start():
 	
 	HTTP.CacheTime = CACHE_1HOUR
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
-	HTTP.Headers['Referer'] = 'http://view47.com/'
+	HTTP.Headers['Referer'] = 'http://view47.me/'
 	HTTP.Headers['Cookie'] = '__cfduid=dd8ee280bf178050f2af59f0a9511ce4f1423094028; __atuvc=2%7C5%2C3%7C6%2C6%7C7; cf_clearance=e109a4b429e9b0a3e218fb5a98f936404c6faeff-1424391772-86400; PHPSESSID=9399323664eef0bdb8a9ee213380fb45; show_tootip=1'
 	
 ######################################################################################
