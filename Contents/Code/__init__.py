@@ -20,6 +20,9 @@ BASE_URL = "http://view47.me"
 MOVIES_URL = "http://view47.me/list/"
 SEARCH_URL = "http://view47.me/search/"
 
+import updater
+updater.init(repo = '/jwsolve/view47.bundle', branch = 'master')
+
 ######################################################################################
 # Set global variables
 
@@ -44,7 +47,7 @@ def Start():
 def MainMenu():
 
 	oc = ObjectContainer()
-
+	updater.add_button_to(oc, PerformUpdate)
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="New Movies", category="new-movies.html", page_count = 1), title = "New Movies", thumb = R(ICON_MOVIES)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Cinema Movies", category="cinema-movies.html", page_count = 1), title = "Cinema Movies", thumb = R(ICON_CINEMA)))
 	oc.add(DirectoryObject(key = Callback(ShowCategory, title="Movies", category="single-movies.html", page_count = 1), title = "Movies", thumb = R(ICON_MOVIES)))
@@ -52,6 +55,11 @@ def MainMenu():
 
 	oc.add(InputDirectoryObject(key = Callback(Search), title='Search', summary='Search View47', prompt='Search for...'))
 	return oc
+
+######################################################################################
+@route(PREFIX + "/performupdate")
+def PerformUpdate():
+	return updater.PerformUpdate()
 
 ######################################################################################
 # Creates page url from category and creates objects from that page
