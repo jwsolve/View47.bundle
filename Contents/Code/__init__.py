@@ -16,12 +16,23 @@ ICON_MOVIES = "icon-movies.png"
 ICON_SERIES = "icon-tv.png"
 ICON_CINEMA = "icon-cinema.png"
 ICON_QUEUE = "icon-queue.png"
-BASE_URL = "http://view47.me"
-MOVIES_URL = "http://view47.me/list/"
-SEARCH_URL = "http://view47.me/search/"
+BASE_URL = "http://view47.com"
+MOVIES_URL = "http://view47.com/list/"
+SEARCH_URL = "http://view47.com/search/"
 
-import updater
+import updater, os, sys
+from lxml import html
+try:
+	path = os.getcwd().split("?\\")[1].split('Plug-in Support')[0]+"Plug-ins/View47.bundle/Contents/Code/Modules/View47"
+except:
+	path = os.getcwd().split("Plug-in Support")[0]+"Plug-ins/View47.bundle/Contents/Code/Modules/View47"
+if path not in sys.path:
+	sys.path.append(path)
+
 updater.init(repo = '/jwsolve/view47.bundle', branch = 'master')
+
+import cfscrape
+scraper = cfscrape.create_scraper()
 
 ######################################################################################
 # Set global variables
@@ -38,7 +49,6 @@ def Start():
 	HTTP.CacheTime = CACHE_1HOUR
 	HTTP.Headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
 	HTTP.Headers['Referer'] = 'http://view47.me/'
-	HTTP.Headers['Cookie'] = '__cfduid=dd8ee280bf178050f2af59f0a9511ce4f1423094028; __atuvc=2%7C5%2C3%7C6%2C6%7C7; cf_clearance=e109a4b429e9b0a3e218fb5a98f936404c6faeff-1424391772-86400; PHPSESSID=9399323664eef0bdb8a9ee213380fb45; show_tootip=1'
 	
 ######################################################################################
 # Menu hierarchy
@@ -70,14 +80,18 @@ def ShowCategory(title, category, page_count):
 	oc = ObjectContainer(title1 = title)
 	if page_count == "1":
 		try:
-			page_data = HTML.ElementFromURL(str(category))
+			page = scraper.get(str(category))
+			page_data = html.fromstring(page.text)
 		except:
-			page_data = HTML.ElementFromURL(MOVIES_URL + str(category))
+			page = scraper.get(MOVIES_URL + str(category))
+			page_data = html.fromstring(page.text)
 	else:
 		try:
-			page_data = HTML.ElementFromURL(str(category) + '?p=' + str(page_count) + '/')
+			page = scraper.get(str(category) + '?p=' + str(page_count) + '/')
+			page_data = html.fromstring(page.text)
 		except:
-			page_data = HTML.ElementFromURL(MOVIES_URL + str(category) + '?p=' + str(page_count) + '/')
+			page = scraper.get(MOVIES_URL + str(category) + '?p=' + str(page_count) + '/')
+			page_data = html.fromstring(page.text)
 	for each in page_data.xpath("//div[contains(@rel,'items-')]"):
 		url = each.xpath("./a/@href")[0]
 		title = each.xpath("./a/@title")[0]
@@ -114,7 +128,8 @@ def ShowCategory(title, category, page_count):
 def ShowEpisodes(title, url):
 
 	oc = ObjectContainer(title1 = title)
-	page_data = HTML.ElementFromURL(url)
+	page = scraper.get(url)
+	page_data = html.fromstring(page.text)
 	thumb = page_data.xpath("//div[@class='poster']/a/img/@src")
 	for each in page_data.xpath("//div[contains(@class,'boxep')]/a"):
 		url = each.xpath("./@href")[0]
@@ -136,16 +151,17 @@ def ShowEpisodes(title, url):
 def EpisodeDetail(title, url):
 	
 	oc = ObjectContainer(title1 = title)
-	page = HTML.ElementFromURL(url)
-	title = page.xpath("//meta[@property='og:title']/@content")[0]
+	page = scraper.get(url)
+	page_data = html.fromstring(page.text)
+	title = page_data.xpath("//meta[@property='og:title']/@content")[0]
 
 	try:
-		description = page.xpath("//div[@class='info-txt']/p/text()")[0]
+		description = page_data.xpath("//div[@class='info-txt']/p/text()")[0]
 	except:
-		description = page.xpath("//meta[@property='og:description']/@content")[0]
-	thumb = page.xpath("//div[@class='poster']/a/img/@src")[0]
-	director = page.xpath("//dl[1]/dd[1]/a/text()")
-	imdb_rating = page.xpath("//dl[2]/dd[4]/text()")[0]
+		description = page_data.xpath("//meta[@property='og:description']/@content")[0]
+	thumb = page_data.xpath("//div[@class='poster']/a/img/@src")[0]
+	director = page_data.xpath("//dl[1]/dd[1]/a/text()")
+	imdb_rating = page_data.xpath("//dl[2]/dd[4]/text()")[0]
 	
 	oc.add(VideoClipObject(
 		title = title,
@@ -163,11 +179,11 @@ def EpisodeDetail(title, url):
 def Search(query):
 
 	oc = ObjectContainer(title2='Search Results')
-	data = HTTP.Request(SEARCH_URL + '%s' % String.Quote(query, usePlus=True) + '.html', headers="").content
+	searchdata = scraper.get(SEARCH_URL + '%s' % String.Quote(query, usePlus=True) + '.html')
 
-	html = HTML.ElementFromString(data)
+	pagehtml = html.fromstring(searchdata.text)
 
-	for movie in html.xpath("//ul[@class='list zzz ip_tip']/li"):
+	for movie in pagehtml.xpath("//ul[@class='list zzz ip_tip']/li"):
 		url = movie.xpath("./div/p/a/@href")[0]
 		title = movie.xpath("./div/p/a/@title")[0]
 		thumb = url

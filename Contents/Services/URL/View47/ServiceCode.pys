@@ -1,3 +1,16 @@
+import os, sys
+from lxml import html
+
+try:
+	path = os.getcwd().split("?\\")[1].split('Plug-in Support')[0]+"Plug-ins/View47.bundle/Contents/Code/Modules/View47"
+except:
+	path = os.getcwd().split("Plug-in Support")[0]+"Plug-ins/View47.bundle/Contents/Code/Modules/View47"
+if path not in sys.path:
+	sys.path.append(path)
+
+import cfscrape
+scraper = cfscrape.create_scraper()
+
 ########################################################################################
 def NormalizeURL(url):
 
@@ -6,7 +19,8 @@ def NormalizeURL(url):
 ########################################################################################
 def MetadataObjectForURL(url):
 
-	page = HTML.ElementFromURL(url, cacheTime=CACHE_1HOUR)
+	page_data = scraper.get(url)
+	page = html.fromstring(page_data.text)
 
 	title = page.xpath("//title/text()")[0].replace(' | View47.Com','',1)
 	try:
@@ -66,11 +80,9 @@ def MediaObjectsForURL(url):
 	]
 
 ########################################################################################
-@indirect
 def PlayVideo(url, fmt):
 
+	page_data = scraper.get(url)
+	video_url = Regex('file:\t"([^"]+)"').search(page_data.text).groups()[0]
 
-	html = HTTP.Request(url, cacheTime=CACHE_1HOUR).content
-	video_url = Regex('file:\t"([^"]+)"').search(html).groups()[0]
-
-	return IndirectResponse(VideoClipObject, key=video_url)
+	return Redirect(video_url)
