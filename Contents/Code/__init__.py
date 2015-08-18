@@ -97,18 +97,18 @@ def ShowCategory(title, category, page_count):
 		title = each.xpath("./a/@title")[0]
 		thumb = each.xpath("./img/@src")[0]
 		
-		if 'Season' in title:
+		if 'Season' in title or 'S0' in title:
 			oc.add(DirectoryObject(
 				key = Callback(ShowEpisodes, title = title, url = url),
 				title = title,
-				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-series.png')
+				thumb = thumb
 				)
 			)
 		else:
 			oc.add(DirectoryObject(
 				key = Callback(EpisodeDetail, title = title, url = url),
 				title = title,
-				thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+				thumb = thumb
 				)
 			)
 
@@ -131,7 +131,7 @@ def ShowEpisodes(title, url):
 	page = scraper.get(url)
 	page_data = html.fromstring(page.text)
 	thumb = page_data.xpath("//div[@class='poster']/a/img/@src")
-	for each in page_data.xpath("//div[contains(@class,'boxep')]/a"):
+	for each in page_data.xpath("//div[@class='episode']/a"):
 		url = each.xpath("./@href")[0]
 		title = each.xpath("./@title")[0]
 
