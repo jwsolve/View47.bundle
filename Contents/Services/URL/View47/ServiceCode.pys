@@ -1,3 +1,4 @@
+import urllib,urllib2,re,urlparse
 import os, sys
 from lxml import html
 
@@ -61,28 +62,32 @@ def MediaObjectsForURL(url):
 			parts = [
 				PartObject(
 					key = 
-						Callback(
-							PlayVideo,
-							url = url,
-							fmt = 'hi',
-							post_url=url
-						)
-					)
-				],
-			video_resolution = 720,
-			bitrate = 3000,
-			container = Container.MP4,
-			video_codec = VideoCodec.H264,
-			audio_codec = AudioCodec.AAC,
-			audio_channels = 2,
-			optimized_for_streaming = True
+						Callback(PlayVideo, url = url, post_url=url))
+				]
 			)
 	]
 
 ########################################################################################
-def PlayVideo(url, fmt):
+@indirect
+def PlayVideo(url):
 
 	page_data = scraper.get(url)
-	video_url = Regex('file:\t"([^"]+)"').search(page_data.text).groups()[0]
+	url = Regex('height="360" src="([^"]+)"').search(page_data.text).groups()[0]
 
-	return Redirect(video_url)
+	url = urlparse.urlparse(url).query
+	url = urlparse.parse_qs(url)['ref'][0]
+	url = 'http://videomega.tv/iframe.php?ref=%s' % url
+	referer = url
+
+	req = urllib2.Request(url,None)
+	req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:34.0) Gecko/20100101 Firefox/34.0')
+	req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+	req.add_header('Referer', referer)
+	response = urllib2.urlopen(req)
+	link = response.read()
+	response.close()
+
+	video_url = re.compile('source src="(.+?)"').findall(link)[0].split("&")[0]
+	#return video_url
+	return IndirectResponse(VideoClipObject, key=video_url)
+	#return Redirect(video_url)
