@@ -72,22 +72,14 @@ def MediaObjectsForURL(url):
 def PlayVideo(url):
 
 	page_data = scraper.get(url)
-	url = Regex('height="360" src="([^"]+)"').search(page_data.text).groups()[0]
-
-	url = urlparse.urlparse(url).query
-	url = urlparse.parse_qs(url)['ref'][0]
-	url = 'http://videomega.tv/iframe.php?ref=%s' % url
-	referer = url
-
-	req = urllib2.Request(url,None)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:34.0) Gecko/20100101 Firefox/34.0')
-	req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-	req.add_header('Referer', referer)
-	response = urllib2.urlopen(req)
-	link = response.read()
-	response.close()
-
-	video_url = re.compile('source src="(.+?)"').findall(link)[0].split("&")[0]
-	#return video_url
-	return IndirectResponse(VideoClipObject, key=video_url)
-	#return Redirect(video_url)
+	htmltext = ""
+	googlelinktext = html.fromstring(page_data.text)
+	googlelink = googlelinktext.xpath("//ul[@class='css_server_new']/li/a/@href")[0]
+	for each in googlelinktext.xpath("//ul[@class='css_server_new']/li/a"):
+		linkref = each.xpath("./@href")[0]
+		pagelink = scraper.get(linkref).content
+		try:
+			file = Regex('file:\t"([^"]+)"').search(pagelink).groups()[0]
+			return IndirectResponse(VideoClipObject, key = file)
+		except:
+			continue
