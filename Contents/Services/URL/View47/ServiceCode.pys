@@ -63,23 +63,26 @@ def MediaObjectsForURL(url):
 				PartObject(
 					key = 
 						Callback(PlayVideo, url = url, post_url=url))
-				]
+				],
+			video_resolution = 720,
+			bitrate = 3000,
+			audio_codec = AudioCodec.AAC,
+			audio_channels = 2,
+			optimized_for_streaming = True
 			)
 	]
 
 ########################################################################################
-@indirect
+#@indirect
 def PlayVideo(url):
 
 	page_data = scraper.get(url)
-	htmltext = ""
 	googlelinktext = html.fromstring(page_data.text)
-	googlelink = googlelinktext.xpath("//ul[@class='css_server_new']/li/a/@href")[0]
 	for each in googlelinktext.xpath("//ul[@class='css_server_new']/li/a"):
 		linkref = each.xpath("./@href")[0]
 		pagelink = scraper.get(linkref).content
 		try:
 			file = Regex('file:\t"([^"]+)"').search(pagelink).groups()[0]
-			return IndirectResponse(VideoClipObject, key = file)
+			return Redirect(file)
 		except:
 			continue
